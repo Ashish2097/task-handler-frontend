@@ -52,6 +52,7 @@ export const getAllTasks = async () => {
         title: 'ED-1234',
         description: 'Task Handler: App to help you complete your tasks on time',
         jiraID: 'ED-1234',
+        status: 'In Progress',
         timeEstimate: 4,
         timeElapsed: 2.5,
       },
@@ -65,6 +66,7 @@ export const getAllTasks = async () => {
         description: 'Find General Zod',
         jiraID: 'ED-1234',
         timeEstimate: 4,
+        status: 'To-Do',
         timeElapsed: 0,
       }],
     };
@@ -74,4 +76,11 @@ export const getAllTasks = async () => {
       errorMessage: 'task api nahi chal ri',
     }
   }
+}
+
+export const markDoneApi = (params) => {
+  
+}
+export const pickTaskApi = () => {
+
 }

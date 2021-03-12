@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { getAllTasks } from '../../api/apis';
-import { Avatar, Progress } from 'antd';
+import { getAllTasks, markDoneApi, pickTaskApi } from '../../api/apis';
+import { Avatar, Progress, Button, Modal, DatePicker } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -9,6 +9,9 @@ import { Link, useLocation } from 'react-router-dom';
 const User = () => {
   const [taskList, setTaskList] = useState({});
   const [userData, setUserData] = useState({});
+  const [pickTimeModalVisible, setPickTimeModalVisible] = useState(false);
+  const [pickedTime, setPickedTime] = useState(undefined);
+  const [selectedTaskId, setSelectedTaskId] = useState(undefined);
   const location = useLocation();
   
   const getTaskList = async () => {
@@ -20,6 +23,48 @@ const User = () => {
     }
   }
 
+  const markDone = async (taskId) => {
+    const response = await markDoneApi({ taskId });
+    if (response.isSuccess) {
+      getTaskList();
+    } else {
+      alert(response.error || 'Something went wrong');
+    }
+  }
+
+  const pickTask = async () => {
+    if (!selectedTaskId) return;
+    const response = await pickTaskApi();
+    if (response.isSuccess) {
+      handleModalClose();
+      getTaskList();
+    } else {
+      alert(response.error || 'Something went wrong');
+    }
+  }
+
+  const renderButton = (status, id) => {
+    if (status === 'To-Do') {
+      return <Button onClick={() => {
+        setSelectedTaskId(id);
+        setPickTimeModalVisible(true);
+      }}>
+        Pick
+      </Button>
+    } else if (status === 'In Progress') {
+      return <Button onClick={() => markDone(id)}>
+        Mark Done
+      </Button>
+    } else {
+      return null;
+    }
+  }
+
+  const handleModalClose = () => {
+    setPickTimeModalVisible(false);
+    setPickedTime(undefined);
+    setSelectedTaskId(undefined);
+  }
   useEffect(() => {
     getTaskList();  
   }, []);
@@ -61,11 +106,36 @@ const User = () => {
                 <div>
                   {task.description}
                 </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 20 }}>
+                  <h2>
+                    {task.status}
+                  </h2>
+                  <span style={{ marginLeft: 20 }}>{renderButton(task.status, task.id)}</span>
+                </div>
               </div>
             </div>
           )
         })}
       </div>
+      {pickTimeModalVisible && <Modal
+      visible={pickTimeModalVisible}
+      okText={'Pick Task'}
+      onCancel={() => {
+        handleModalClose();
+      }}
+      closable={false}
+      onOk={() => {
+        pickTask();
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+          <span>Select Task Start Time</span>
+          <DatePicker
+          showTime={true}
+          placeholder={'Select Date and Time'}
+          value={pickedTime}
+          onChange={(val) => setPickedTime(val)}></DatePicker>
+        </div>
+      </Modal>}
     </>
   );
 }
