@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { getAllUsers } from '../../api/apis';
+import { Avatar } from 'antd';
+import { UserOutlined } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
+
 
 const Dashboard = () => {
   const [userList, setUserList] = useState({});
@@ -20,12 +24,18 @@ const Dashboard = () => {
 
 
   return (
-    <div>
-      {/* {userList.map(user => {
+    <div style={{ textAlign: 'left' }}>
+      {userList?.length && userList.map(user => {
         return <div>
-          {user.name}
+          <Link to={{
+            pathname: `/user/${user.id}`,
+            state: { userData: user },
+          }}>
+            <Avatar size={64} icon={<UserOutlined />} />
+            {user.name}
+          </Link>
         </div>
-      })} */}
+      })}
     </div>
   );
 }
