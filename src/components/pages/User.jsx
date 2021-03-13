@@ -146,13 +146,16 @@ const User = () => {
                 }}
               />
               <div style={{ paddingLeft: 20 }}>
-                <h1>
+                <h1 style={{ marginBottom: 0 }}>
                   {task.title}
                 </h1>
-                <div>
+                <div style={{ marginTop: 5 }}>
                   {task.description}
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 20 }}>
+                <h3>
+                  {task.jira_id}
+                </h3>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 5 }}>
                   <h2>
                     {task.status}
                   </h2>

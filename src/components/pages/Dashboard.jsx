@@ -27,13 +27,17 @@ const Dashboard = () => {
   return (
     <div style={{ textAlign: 'left' }}>
       {userList?.length && userList.map(user => {
-        return <div>
+        return <div style={{ marginTop: 10, marginLeft: 8 }}>
           <Link to={{
             pathname: `/user/${user.id}`,
             state: { userData: user },
           }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
             <Avatar size={64} icon={<UserOutlined />} />
-            {user.name}
+            <h3 style={{ marginLeft: 10, color: '#1890FF' }}>{user.name}</h3>
+            <h4 style={{ marginLeft: 10, color: '#1890FF' }}>{user.team}</h4>
+            <h5 style={{ marginLeft: 10, color: '#1890FF' }}>{user.department}</h5>
+            </div>
           </Link>
         </div>
       })}
