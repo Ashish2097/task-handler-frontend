@@ -52,7 +52,7 @@ export const getAllTasks = async () => {
         title: 'ED-1234',
         description: 'Task Handler: App to help you complete your tasks on time',
         jiraID: 'ED-1234',
-        status: 'In Progress',
+        status: 'IN PROGRESS',
         timeEstimate: 4,
         timeElapsed: 2.5,
       },
@@ -66,7 +66,7 @@ export const getAllTasks = async () => {
         description: 'Find General Zod',
         jiraID: 'ED-1234',
         timeEstimate: 4,
-        status: 'To-Do',
+        status: 'TO DO',
         timeElapsed: 0,
       }],
     };
@@ -78,9 +78,44 @@ export const getAllTasks = async () => {
   }
 }
 
-export const markDoneApi = (params) => {
+export const markDoneApi = async (params) => {
+  try {
+    const response = await axios.get('https://jsonplaceholder.typicode.com/todos/1');
+    return {
+      isSuccess: true,
+    };
+  } catch (e) {
+    return {
+      isSuccess: false,
+      errorMessage: 'markdone api nahi chal rahi',
+    }
+  }
   
 }
-export const pickTaskApi = () => {
+export const pickTaskApi = async () => {
+  try {
+    const response = await axios.get('https://jsonplaceholder.typicode.com/todos/1');
+    return {
+      isSuccess: true,
+    };
+  } catch (e) {
+    return {
+      isSuccess: false,
+      errorMessage: 'task add api nahi chal rahi',
+    }
+  }
+}
 
+export const addTaskToQueue = async () => {
+  try {
+    const response = await axios.get('https://jsonplaceholder.typicode.com/todos/1');
+    return {
+      isSuccess: true,
+    };
+  } catch (e) {
+    return {
+      isSuccess: false,
+      errorMessage: 'task add api nahi chal rahi',
+    }
+  }
 }

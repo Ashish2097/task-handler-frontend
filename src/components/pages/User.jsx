@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { getAllTasks, markDoneApi, pickTaskApi } from '../../api/apis';
-import { Avatar, Progress, Button, Modal, DatePicker } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { getAllTasks, addTaskToQueue, markDoneApi, pickTaskApi } from '../../api/apis';
+import { Avatar, Button, Input, Progress, DatePicker, Modal } from 'antd';
+import { UserOutlined, VerticalLeftOutlined } from '@ant-design/icons';
 import { Link, useLocation } from 'react-router-dom';
-
+import moment from 'moment';
 
 const User = () => {
   const [taskList, setTaskList] = useState({});
@@ -12,6 +12,13 @@ const User = () => {
   const [pickTimeModalVisible, setPickTimeModalVisible] = useState(false);
   const [pickedTime, setPickedTime] = useState(undefined);
   const [selectedTaskId, setSelectedTaskId] = useState(undefined);
+  const [buttonColor, setButtonColor] = useState('#ffffff');
+  const [visible, setVisible] = useState(false);
+  const [taskTitle, setTaskTitle] = useState();
+  const [taskDescription, setTaskDescription] = useState();
+  const [taskTimeEstimate, setTaskTimeEstimate] = useState();
+  const [taskJiraId, setTaskJiraId] = useState();
+
   const location = useLocation();
   
   const getTaskList = async () => {
@@ -44,14 +51,14 @@ const User = () => {
   }
 
   const renderButton = (status, id) => {
-    if (status === 'To-Do') {
+    if (status === 'TO DO') {
       return <Button onClick={() => {
         setSelectedTaskId(id);
         setPickTimeModalVisible(true);
       }}>
         Pick
       </Button>
-    } else if (status === 'In Progress') {
+    } else if (status === 'IN PROGRESS') {
       return <Button onClick={() => markDone(id)}>
         Mark Done
       </Button>
@@ -74,6 +81,25 @@ const User = () => {
     setUserData(location?.state?.userData);
   }, [location]);
 
+  const handleAddTaskToQueue = async () => {
+    const response = await addTaskToQueue({
+      assignor_id: "4",
+      assignee_id: userData.id,
+      title: taskTitle,
+      description: taskDescription,
+      jira_id: taskJiraId,
+      time_estimate: taskTimeEstimate,
+    });
+    if (response.isSuccess) {
+      setButtonColor('rgb(92 196 49)');
+    } else {
+      setButtonColor('#ed494c');
+    }
+    setTimeout(() => {
+      setButtonColor('#ffffff');
+    }, 2000);
+    setVisible(false);
+  }
   return (
     <>
       <div style={{ borderBottom: '2px solid #5a5757', padding: '30px 72px', display: 'flex', alignItems: 'center' }}>
@@ -81,6 +107,7 @@ const User = () => {
         <span style={{ fontSize: 42, paddingLeft: 20 }}>
           {userData?.name}
         </span>
+        <Button type="text" style={{ backgroundColor: buttonColor, marginTop: 10, marginLeft: 28, border: '1px solid' }} onClick={() => setVisible(true)}><VerticalLeftOutlined />Add Task To Queue</Button>
       </div>
       <div style={{ padding: 60, textAlign: 'left', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
         {taskList?.length && taskList.map(task => {
@@ -116,6 +143,38 @@ const User = () => {
             </div>
           )
         })}
+        <Modal
+          title="Add Task"
+          visible={visible}
+          onOk={handleAddTaskToQueue}
+          onCancel={() => setVisible(false)}>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <Input
+              title="Title"
+              value={taskTitle}
+              placeholder="Add Title"
+              onChange={(e) => setTaskTitle(e.target.value)}
+            /><br/>
+            <Input
+              title="Description"
+              placeholder="Add Description"
+              value={taskDescription}
+              onChange={(e) => setTaskDescription(e.target.value)}
+            /><br/>
+            <Input
+              title="Time Estimate"
+              placeholder="Add Time Estimate"
+              value={taskTimeEstimate}
+              onChange={(e) => setTaskTimeEstimate(e.target.value)}
+            /><br/>
+            <Input
+              title="Jira Id"
+              placeholder="Add Jira Id"
+              value={taskJiraId}
+              onChange={(e) => setTaskJiraId(e.target.value)}
+            />
+          </div>
+        </Modal>
       </div>
       {pickTimeModalVisible && <Modal
       visible={pickTimeModalVisible}
@@ -133,6 +192,7 @@ const User = () => {
           showTime={true}
           placeholder={'Select Date and Time'}
           value={pickedTime}
+          defaultValue={moment()}
           onChange={(val) => setPickedTime(val)}></DatePicker>
         </div>
       </Modal>}
