@@ -12,7 +12,7 @@ const Dashboard = () => {
   const getUserList = async () => {
     const response = await getAllUsers();
     if (response.isSuccess) {
-      setUserList(response.data);
+      setUserList(response.data.data);
     } else {
       alert(response.error || 'Something went wrong');
     }
@@ -23,6 +23,7 @@ const Dashboard = () => {
   }, []);
 
 
+  console.log(userList, ": herer");
   return (
     <div style={{ textAlign: 'left' }}>
       {userList?.length && userList.map(user => {

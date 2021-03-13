@@ -5,6 +5,7 @@ import { Avatar, Button, Input, Progress, DatePicker, Modal } from 'antd';
 import { UserOutlined, VerticalLeftOutlined } from '@ant-design/icons';
 import { Link, useLocation } from 'react-router-dom';
 import moment from 'moment';
+import config from '../../config';
 
 const User = () => {
   const [taskList, setTaskList] = useState({});
@@ -22,9 +23,12 @@ const User = () => {
   const location = useLocation();
   
   const getTaskList = async () => {
-    const response = await getAllTasks();
+    if (!userData.id) {
+      return;
+    }
+    const response = await getAllTasks(userData.id);
     if (response.isSuccess) {
-      setTaskList(response.data);
+      setTaskList(response.data?.data?.[userData.id]);
     } else {
       alert(response.error || 'Something went wrong');
     }
@@ -39,19 +43,25 @@ const User = () => {
     }
   }
 
+  console.log(taskList, ": here");
   const pickTask = async () => {
     if (!selectedTaskId) return;
-    const response = await pickTaskApi();
+    console.log(selectedTaskId, ": here selected");
+    console.log(pickedTime, ": here picked");
+    const response = await pickTaskApi({
+      id: selectedTaskId,
+      startingTime: pickedTime || moment(),
+    });
     if (response.isSuccess) {
       handleModalClose();
-      getTaskList();
+      setTimeout(() => getTaskList(), 2000);
     } else {
       alert(response.error || 'Something went wrong');
     }
   }
 
   const renderButton = (status, id) => {
-    if (status === 'TO DO') {
+    if (status === 'TO-DO') {
       return <Button onClick={() => {
         setSelectedTaskId(id);
         setPickTimeModalVisible(true);
@@ -72,9 +82,17 @@ const User = () => {
     setPickedTime(undefined);
     setSelectedTaskId(undefined);
   }
+  const handleAddTaskModalClose = () => {
+    setVisible(false);
+    setTaskTitle(undefined);
+    setTaskDescription(undefined);
+    setTaskTimeEstimate(undefined);
+    setTaskJiraId(undefined);
+  }
+
   useEffect(() => {
     getTaskList();  
-  }, []);
+  }, [userData]);
 
   useEffect(() => {
     console.log(location, ": here");
@@ -83,22 +101,23 @@ const User = () => {
 
   const handleAddTaskToQueue = async () => {
     const response = await addTaskToQueue({
-      assignor_id: "4",
-      assignee_id: userData.id,
+      assignorId: config.loggedInUser,
+      assigneeId: userData.id,
       title: taskTitle,
       description: taskDescription,
-      jira_id: taskJiraId,
-      time_estimate: taskTimeEstimate,
+      jiraId: taskJiraId,
+      timeEstimate: taskTimeEstimate,
     });
     if (response.isSuccess) {
       setButtonColor('rgb(92 196 49)');
+      getTaskList();
     } else {
       setButtonColor('#ed494c');
     }
     setTimeout(() => {
       setButtonColor('#ffffff');
     }, 2000);
-    setVisible(false);
+    handleAddTaskModalClose();
   }
   return (
     <>
@@ -111,8 +130,8 @@ const User = () => {
       </div>
       <div style={{ padding: 60, textAlign: 'left', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
         {taskList?.length && taskList.map(task => {
-          const taskCompletePercent = (task.timeElapsed / task.timeEstimate) * 100;
-          const timeLeft = task.timeEstimate - task.timeElapsed; 
+          const taskCompletePercent = ((task.time_elapsed || 0) / task.time_estimate) * 100;
+          const timeLeft = task.time_estimate - (task.time_elapsed || 0); 
           return (
             <div>
               <Progress
@@ -121,7 +140,7 @@ const User = () => {
                 percent={taskCompletePercent}
                 format={percent => {
                   if (timeLeft >= 0) {
-                    return `${timeLeft} hrs left`;
+                    return `${timeLeft.toFixed(2)} hrs left`;
                   }
                   return 'Dead';
                 }}
@@ -177,14 +196,14 @@ const User = () => {
         </Modal>
       </div>
       {pickTimeModalVisible && <Modal
-      visible={pickTimeModalVisible}
-      okText={'Pick Task'}
-      onCancel={() => {
-        handleModalClose();
-      }}
-      closable={false}
-      onOk={() => {
-        pickTask();
+        visible={pickTimeModalVisible}
+        okText={'Pick Task'}
+        onCancel={() => {
+          handleModalClose();
+        }}
+        closable={false}
+        onOk={() => {
+          pickTask();
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-around' }}>
           <span>Select Task Start Time</span>

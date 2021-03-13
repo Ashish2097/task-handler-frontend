@@ -1,34 +1,14 @@
+import config from '../config';
 const axios = require('axios');
+
+const { baseUrl } = config;
 
 export const getAllUsers = async () => {
   try {
-    const response = await axios.get('https://jsonplaceholder.typicode.com/todos/1');
+    const response = await axios.get(baseUrl+'/users/fetch');
     return {
       isSuccess: true,
-      data: [{
-        id: 1,
-        name: 'Adam',
-        email: 'adam@shipsy.co.in',
-        team: 'Dynamite',
-        department: 'Engineering',
-        managerId: 4,
-      },
-      {
-        id: 2,
-        name: 'Eve',
-        email: 'eve@shipsy.co.in',
-        team: 'Dynamite',
-        department: 'Engineering',
-        managerId: 4,
-      },
-      {
-        id: 3,
-        name: 'Snape',
-        email: 'snape@shipsy.co.in',
-        team: 'Hogwarts',
-        department: 'Teaching',
-        managerId: 4,
-      }],
+      data: response,
     };
   } catch (e) {
     return {
@@ -38,37 +18,12 @@ export const getAllUsers = async () => {
   }
 }
 
-export const getAllTasks = async () => {
+export const getAllTasks = async (userId) => {
   try {
-    const response = await axios.get('https://jsonplaceholder.typicode.com/todos/1');
+    const response = await axios.get(baseUrl+'/task/fetch?userId='+userId);
     return {
       isSuccess: true,
-      data: [{
-        id: 1,
-        assigneeId: 2,
-        assigneeName: 'Eve', 
-        assignorId: 1,
-        assignorName: 'Adam',
-        title: 'ED-1234',
-        description: 'Task Handler: App to help you complete your tasks on time',
-        jiraID: 'ED-1234',
-        status: 'IN PROGRESS',
-        timeEstimate: 4,
-        timeElapsed: 2.5,
-      },
-      {
-        id: 2,  
-        assigneeId: 3,
-        assigneeName: 'Snape', 
-        assignorId: 4,
-        assignorName: 'Dumbledore',
-        title: 'ED-0001',
-        description: 'Find General Zod',
-        jiraID: 'ED-1234',
-        timeEstimate: 4,
-        status: 'TO DO',
-        timeElapsed: 0,
-      }],
+      data: response,
     };
   } catch (e) {
     return {
@@ -80,7 +35,7 @@ export const getAllTasks = async () => {
 
 export const markDoneApi = async (params) => {
   try {
-    const response = await axios.get('https://jsonplaceholder.typicode.com/todos/1');
+    const response = await axios.patch(baseUrl+'/task/markdone', params);
     return {
       isSuccess: true,
     };
@@ -92,9 +47,9 @@ export const markDoneApi = async (params) => {
   }
   
 }
-export const pickTaskApi = async () => {
+export const pickTaskApi = async (body) => {
   try {
-    const response = await axios.get('https://jsonplaceholder.typicode.com/todos/1');
+    const response = await axios.patch(baseUrl+'/task/pick', body);
     return {
       isSuccess: true,
     };
@@ -106,9 +61,9 @@ export const pickTaskApi = async () => {
   }
 }
 
-export const addTaskToQueue = async () => {
+export const addTaskToQueue = async (body) => {
   try {
-    const response = await axios.get('https://jsonplaceholder.typicode.com/todos/1');
+    const response = await axios.post(baseUrl+'/task/add', body);
     return {
       isSuccess: true,
     };
